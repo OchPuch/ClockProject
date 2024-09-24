@@ -22,6 +22,8 @@ namespace Clock.ClockModules.CustomTime
         {
             if (IsInAlarmMode) return;
             IsInAlarmMode = true;
+
+            _customTime = _clockService.GetTime();
             
             AlarmModeStarted?.Invoke();
         }
@@ -50,14 +52,15 @@ namespace Clock.ClockModules.CustomTime
         public void DiscardCustomTimeAndStop()
         {
             if (!IsInAlarmMode) return;
-            _clockService.TimeOffset = new TimeSpan(0);
+            _clockService.ResetTimeOffset();
             CancelAlarmMode();
         }
         
         public void SetCustomTimeAndStop()
         {
             if (!IsInAlarmMode) return;
-            _clockService.TimeOffset = _customTime - _clockService.GetTimeWithoutOffset();
+            var timeWithoutOffset = _clockService.GetTimeWithoutOffset();
+            _clockService.TimeOffset = _customTime - timeWithoutOffset;
             CancelAlarmMode();
         }
     }

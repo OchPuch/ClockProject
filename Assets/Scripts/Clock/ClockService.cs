@@ -8,10 +8,15 @@ namespace Clock
 {
     public class ClockService : ITimeProvider, ITickable
     {
-        public TimeSpan TimeOffset { get; set; } = new TimeSpan(0);
+        public TimeSpan TimeOffset { get; set; } = new(0);
         private DateTime _currentTime = DateTime.Now;
         private CancellationTokenSource _timeUpdaterCancellationTokenSource;
         public event Action<DateTime> TimeUpdated;
+
+        public void ResetTimeOffset()
+        {
+            TimeOffset = new TimeSpan(0);
+        }
         
         public DateTime GetTime()
         {

@@ -58,7 +58,6 @@ namespace Clock.ClockModules.Input.Analog
         {
             var lastHour = LastTimeInput.Hour;
             
-            
             if ((lastHour is >= 9 and < 12 or >= 21 && hour <= 3) //Checking if user scrolls the border from 0-11 to 12-23
                 || (lastHour is >= 12 and < 18 or >= 0 and < 6 && hour is <= 11 and > 6)) //Checking if user scrolls same border but backwards
                 _hourLoopWasMade = !_hourLoopWasMade;

@@ -16,9 +16,7 @@ namespace Clock.ClockModules.Input.Analog
     [SerializeField] private float animationLength;
 
     private ITimeProvider _timeProvider;
-    private Tween _hourRotationTween;
-    private Tween _minuteRotationTween;
-    private Tween _secondRotationTween;
+    private Sequence _tweenSequence;
 
     [Inject]
     private void Construct(ITimeProvider timeProvider)
@@ -33,22 +31,13 @@ namespace Clock.ClockModules.Input.Analog
     public override void Hide()
     {
     }
-    private void KillMultipleTween(params Tween[] tweenArray)
-    {
-        foreach (var tween in tweenArray )
-        {
-            if (tween != null && tween.IsActive())
-            {
-                tween.Kill();
-            }
-        }
-    }
+    
 
     protected override void OnSwitched(bool obj)
     {
         if (obj)
-        {
-            KillMultipleTween(_hourRotationTween, _minuteRotationTween, _secondRotationTween);
+        { 
+            if (_tweenSequence is not null) _tweenSequence.Kill();
             clockViewAnalog.enabled = false;
         }
         else
@@ -59,49 +48,38 @@ namespace Clock.ClockModules.Input.Analog
 
     private void InitTweens()
     {
-        // Kill any existing tweens before starting new ones
-        KillMultipleTween(_hourRotationTween, _minuteRotationTween, _secondRotationTween);
+        if (_tweenSequence is not null) _tweenSequence.Kill();
+        _tweenSequence = DOTween.Sequence();
 
-        // Disable clock view during animation
-        clockViewAnalog.enabled = false;
-
-        // Create a sequence
-        Sequence sequence = DOTween.Sequence();
-
-        // Add the hour tween
-        _hourRotationTween = DOTween.To(() => hourHandle.GetCurrentValue(),
+        var hourRotationTween = DOTween.To(() => hourHandle.GetCurrentValue(),
             x => hourHandle.SetRotation(x),
             TimeUtils.HoursToAngle(_timeProvider.GetTime().Hour, _timeProvider.GetTime().Minute),
             animationLength).SetEase(Ease.InOutSine);
-        sequence.Join(_hourRotationTween);
+        _tweenSequence.Join(hourRotationTween);
 
-        // Add the minute tween
-        _minuteRotationTween = DOTween.To(() => minuteHandle.GetCurrentValue(),
+        var minuteRotationTween = DOTween.To(() => minuteHandle.GetCurrentValue(),
             x => minuteHandle.SetRotation(x),
             TimeUtils.MinutesToAngle(_timeProvider.GetTime().Minute, _timeProvider.GetTime().Second),
             animationLength).SetEase(Ease.InOutSine);
-        sequence.Join(_minuteRotationTween);
+        _tweenSequence.Join(minuteRotationTween);
 
-        // Add the second tween
-        _secondRotationTween = DOTween.To(() => secondHandle.GetCurrentValue(),
+        var secondRotationTween = DOTween.To(() => secondHandle.GetCurrentValue(),
             x => secondHandle.SetRotation(x),
             TimeUtils.SecondsToAngle(_timeProvider.GetTime().Second),
             animationLength).SetEase(Ease.InOutSine);
-        sequence.Join(_secondRotationTween);
+        _tweenSequence.Join(secondRotationTween);
 
-        // Add OnUpdate logic for each tween
-        sequence.OnUpdate(() =>
+        _tweenSequence.OnUpdate(() =>
         {
-            _secondRotationTween.SetTarget(TimeUtils.SecondsToAngle(_timeProvider.GetTime().Second));
-            _minuteRotationTween.SetTarget(TimeUtils.MinutesToAngle(_timeProvider.GetTime().Minute, _timeProvider.GetTime().Second));
-            _hourRotationTween.SetTarget(TimeUtils.HoursToAngle(_timeProvider.GetTime().Hour, _timeProvider.GetTime().Minute));
+            clockViewAnalog.enabled = false;
+            secondRotationTween.SetTarget(TimeUtils.SecondsToAngle(_timeProvider.GetTime().Second));
+            minuteRotationTween.SetTarget(TimeUtils.MinutesToAngle(_timeProvider.GetTime().Minute, _timeProvider.GetTime().Second));
+            hourRotationTween.SetTarget(TimeUtils.HoursToAngle(_timeProvider.GetTime().Hour, _timeProvider.GetTime().Minute));
         });
 
-        // Add completion logic for the entire sequence
-        sequence.OnComplete(() =>
+        _tweenSequence.OnComplete(() =>
         {
             clockViewAnalog.enabled = true;
-            // Additional completion logic if needed
         });
     }
     }
