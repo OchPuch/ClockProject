@@ -1,15 +1,16 @@
 ﻿using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Zenject;
 
 namespace Clock.ClockModules.View
 {
     public class ClockView : MonoBehaviour
     {
-        [SerializeField] private TextMeshProUGUI hourTextMeshProUGUI;
-        [SerializeField] private TextMeshProUGUI minuteTextMeshProUGUI;
-        [SerializeField] private TextMeshProUGUI secondTextMeshProUGUI;
+        [FormerlySerializedAs("hourTextMeshProUGUI")] [SerializeField] private TextMeshProUGUI _hourTextMeshProUGUI;
+        [FormerlySerializedAs("minuteTextMeshProUGUI")] [SerializeField] private TextMeshProUGUI _minuteTextMeshProUGUI;
+        [FormerlySerializedAs("secondTextMeshProUGUI")] [SerializeField] private TextMeshProUGUI _secondTextMeshProUGUI;
         
         private ITimeProvider _timeProvider;
         
@@ -31,9 +32,9 @@ namespace Clock.ClockModules.View
 
         public void SetTimeText(DateTime dateTime)
         {
-            hourTextMeshProUGUI.text = $"{dateTime.Hour:00}";
-            minuteTextMeshProUGUI.text = $"{dateTime.Minute:00}";
-            secondTextMeshProUGUI.text = $"{dateTime.Second:00}";
+            _hourTextMeshProUGUI.text = $"{dateTime.Hour:00}";
+            _minuteTextMeshProUGUI.text = $"{dateTime.Minute:00}";
+            _secondTextMeshProUGUI.text = $"{dateTime.Second:00}";
         }
     }
 }

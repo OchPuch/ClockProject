@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Utils;
 using Zenject;
 
@@ -7,9 +8,9 @@ namespace Clock.ClockModules.View
 {
     public class ClockViewAnalog : MonoBehaviour
     {
-        [SerializeField] private Transform hourClockHand;
-        [SerializeField] private Transform minuteClockHand;
-        [SerializeField] private Transform secondClockHand;
+        [FormerlySerializedAs("hourClockHand")] [SerializeField] private Transform _hourClockHand;
+        [FormerlySerializedAs("minuteClockHand")] [SerializeField] private Transform _minuteClockHand;
+        [FormerlySerializedAs("secondClockHand")] [SerializeField] private Transform _secondClockHand;
         
         private ITimeProvider _timeProvider;
         
@@ -40,23 +41,22 @@ namespace Clock.ClockModules.View
             SetSeconds(seconds);
         }
 
-        public void SetHours(int hours, int minutes = 0)
+        private void SetHours(int hours, int minutes = 0)
         {
             float hoursAngle = TimeUtils.HoursToAngle(hours, minutes);
-            hourClockHand.localRotation = Quaternion.Euler(0f, 0f, hoursAngle);
+            _hourClockHand.localRotation = Quaternion.Euler(0f, 0f, hoursAngle);
         }
 
-        public void SetMinutes(int minutes, int seconds = 0)
+        private void SetMinutes(int minutes, int seconds = 0)
         {
             float minutesAngle = TimeUtils.MinutesToAngle(minutes, seconds);
-            minuteClockHand.localRotation = Quaternion.Euler(0f, 0f, minutesAngle);
-
+            _minuteClockHand.localRotation = Quaternion.Euler(0f, 0f, minutesAngle);
         }
 
-        public void SetSeconds(int seconds)
+        private void SetSeconds(int seconds)
         {
             float secondsAngle = TimeUtils.SecondsToAngle(seconds);
-            secondClockHand.localRotation = Quaternion.Euler(0f, 0f, secondsAngle);
+            _secondClockHand.localRotation = Quaternion.Euler(0f, 0f, secondsAngle);
         }
     }
 }

@@ -28,7 +28,7 @@ namespace Clock
             return _currentTime;
         }
 
-        public void CancelTimeUpdater()
+        private void CancelTimeUpdater()
         {
             if (_timeUpdaterCancellationTokenSource != null)
             {

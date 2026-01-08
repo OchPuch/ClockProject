@@ -40,14 +40,14 @@ namespace Clock
             response.EnsureSuccessStatusCode();
             string jsonResponse = await response.Content.ReadAsStringAsync();
             var timeData = JsonUtility.FromJson<WorldTimeResponse>(jsonResponse);
-            DateTime dateTime = DateTime.Parse(timeData.datetime);
+            DateTime dateTime = DateTime.Parse(timeData.Datetime);
             return dateTime;
         }
 
         [Serializable]
         private class WorldTimeResponse
         {
-            public string datetime;
+            public string Datetime;
         } 
 
         #endregion

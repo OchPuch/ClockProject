@@ -7,8 +7,7 @@ namespace Clock.ClockModules.Input
     public abstract class ClockInput : MonoBehaviour
     {
         protected ITimeProvider TimeProvider;
-        
-        public DateTime LastTimeInput { get; protected set; }
+        protected DateTime LastTimeInput { get; set; }
 
         public event Action<DateTime, ClockInput> ValueChanged;
         public event Action<bool> Switched;

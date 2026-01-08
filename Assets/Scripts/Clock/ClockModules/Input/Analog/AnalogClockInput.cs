@@ -1,14 +1,15 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Utils;
 
 namespace Clock.ClockModules.Input.Analog
 {
     public class AnalogClockInput : ClockInput
     {
-        [SerializeField] private ClockAnalogHandle hourAnalogHandle;
-        [SerializeField] private ClockAnalogHandle minuteAnalogHandle;
-        [SerializeField] private ClockAnalogHandle secondAnalogHandle;
+        [FormerlySerializedAs("hourAnalogHandle")] [SerializeField] private ClockAnalogHandle _hourAnalogHandle;
+        [FormerlySerializedAs("minuteAnalogHandle")] [SerializeField] private ClockAnalogHandle _minuteAnalogHandle;
+        [FormerlySerializedAs("secondAnalogHandle")] [SerializeField] private ClockAnalogHandle _secondAnalogHandle;
 
         private const int HourLoopBonus = 12;
         private bool _hourLoopWasMade;
@@ -20,16 +21,16 @@ namespace Clock.ClockModules.Input.Analog
 
         private void OnEnable()
         {
-            hourAnalogHandle.ValueChanged += ChangeValue;
-            minuteAnalogHandle.ValueChanged += ChangeValue;
-            secondAnalogHandle.ValueChanged += ChangeValue;
+            _hourAnalogHandle.ValueChanged += ChangeValue;
+            _minuteAnalogHandle.ValueChanged += ChangeValue;
+            _secondAnalogHandle.ValueChanged += ChangeValue;
         }
 
         private void OnDisable()
         {
-            hourAnalogHandle.ValueChanged -= ChangeValue;
-            minuteAnalogHandle.ValueChanged -= ChangeValue;
-            secondAnalogHandle.ValueChanged -= ChangeValue;
+            _hourAnalogHandle.ValueChanged -= ChangeValue;
+            _minuteAnalogHandle.ValueChanged -= ChangeValue;
+            _secondAnalogHandle.ValueChanged -= ChangeValue;
         }
 
         private void ChangeValue(float _)
@@ -40,9 +41,9 @@ namespace Clock.ClockModules.Input.Analog
             int month = currentDateTime.Month;
             int day = currentDateTime.Day;
 
-            float hourAngle = hourAnalogHandle.GetCurrentValue();
-            float minuteAngle = minuteAnalogHandle.GetCurrentValue();
-            float secondAngle = secondAnalogHandle.GetCurrentValue();
+            float hourAngle = _hourAnalogHandle.GetCurrentValue();
+            float minuteAngle = _minuteAnalogHandle.GetCurrentValue();
+            float secondAngle = _secondAnalogHandle.GetCurrentValue();
             
             int second = TimeUtils.AngleToSeconds(secondAngle);
             int minute = TimeUtils.AngleToMinutes(minuteAngle);
@@ -72,16 +73,22 @@ namespace Clock.ClockModules.Input.Analog
             {
                 _hourLoopWasMade = true;
             }
-            hourAnalogHandle.SetRotation(TimeUtils.HoursToAngle(time.Hour));
-            minuteAnalogHandle.SetRotation(TimeUtils.MinutesToAngle(time.Minute));
-            secondAnalogHandle.SetRotation(TimeUtils.SecondsToAngle(time.Second));
+            
+            UpdateRotation(time);
+        }
+
+        private void UpdateRotation(DateTime time)
+        {
+            _hourAnalogHandle.SetRotation(TimeUtils.HoursToAngle(time.Hour));
+            _minuteAnalogHandle.SetRotation(TimeUtils.MinutesToAngle(time.Minute));
+            _secondAnalogHandle.SetRotation(TimeUtils.SecondsToAngle(time.Second));
         }
 
         protected override void OnSwitch(bool value)
         {
-            hourAnalogHandle.enabled = value;
-            minuteAnalogHandle.enabled = value;
-            secondAnalogHandle.enabled = value;
+            _hourAnalogHandle.enabled = value;
+            _minuteAnalogHandle.enabled = value;
+            _secondAnalogHandle.enabled = value;
         }
     }
 }

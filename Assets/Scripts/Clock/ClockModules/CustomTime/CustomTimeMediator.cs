@@ -3,20 +3,30 @@ using System.Collections.Generic;
 using Clock.ClockModules.Input;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 using Zenject;
 
 namespace Clock.ClockModules.CustomTime
 {
     public class CustomTimeMediator : MonoBehaviour
     {
-        [SerializeField] private CustomTimeController customTimeController;
-        [Space(5)] 
-        [SerializeField] private List<ClockInput> clockInputs;
-        [SerializeField] private List<ClockInputView> clockInputViews;
-        [Header("Events")]
-        [SerializeField] private UnityEvent onStart;
-        [SerializeField] private UnityEvent onAlarmModeEnded;
-        [SerializeField] private UnityEvent onAlarmModeStarted;
+        [FormerlySerializedAs("customTimeController")] [SerializeField]
+        private CustomTimeController _customTimeController;
+
+        [FormerlySerializedAs("clockInputs")] [Space(5)] [SerializeField]
+        private List<ClockInput> _clockInputs;
+
+        [FormerlySerializedAs("clockInputViews")] [SerializeField]
+        private List<ClockInputView> _clockInputViews;
+
+        [FormerlySerializedAs("onStart")] [Header("Events")] [SerializeField]
+        private UnityEvent _onStart;
+
+        [FormerlySerializedAs("onAlarmModeEnded")] [SerializeField]
+        private UnityEvent _onAlarmModeEnded;
+
+        [FormerlySerializedAs("onAlarmModeStarted")] [SerializeField]
+        private UnityEvent _onAlarmModeStarted;
 
         private ITimeProvider _timeProvider;
 
@@ -25,80 +35,81 @@ namespace Clock.ClockModules.CustomTime
         {
             _timeProvider = timeProvider;
         }
-        
-        
+
+
         private void Start()
         {
-            foreach (var clockInput in clockInputs)
+            foreach (var clockInput in _clockInputs)
             {
                 clockInput.ValueChanged += OnValueChanged;
                 clockInput.Switch(false);
             }
 
-            foreach (var clockInputView in clockInputViews)
+            foreach (var clockInputView in _clockInputViews)
             {
                 clockInputView.Hide();
             }
-            
-            customTimeController.AlarmModeStarted += OnCustomTimeModeStarted;
-            customTimeController.AlarmModeEnded += OnCustomTimeModeEnded;
-            onStart?.Invoke();
+
+            _customTimeController.AlarmModeStarted += OnCustomTimeModeStarted;
+            _customTimeController.AlarmModeEnded += OnCustomTimeModeEnded;
+            _onStart?.Invoke();
         }
-        
+
         private void OnDestroy()
         {
-            foreach (var clockInput in clockInputs)
+            foreach (var clockInput in _clockInputs)
             {
                 clockInput.ValueChanged -= OnValueChanged;
             }
-            customTimeController.AlarmModeStarted -= OnCustomTimeModeStarted;
-            customTimeController.AlarmModeEnded -= OnCustomTimeModeEnded;
+
+            _customTimeController.AlarmModeStarted -= OnCustomTimeModeStarted;
+            _customTimeController.AlarmModeEnded -= OnCustomTimeModeEnded;
         }
-        
+
         private void OnValueChanged(DateTime obj, ClockInput inputSource)
         {
-            customTimeController.SetTime(obj.Hour, obj.Minute, obj.Second);
-            foreach (var clockInput in clockInputs)
+            _customTimeController.SetTime(obj.Hour, obj.Minute, obj.Second);
+            foreach (var clockInput in _clockInputs)
             {
                 if (clockInput == inputSource) continue;
                 clockInput.Sync(obj);
             }
         }
-        
+
         private void OnCustomTimeModeEnded()
         {
             DisableInputs();
-            onAlarmModeEnded?.Invoke();
+            _onAlarmModeEnded?.Invoke();
         }
 
         private void OnCustomTimeModeStarted()
         {
             EnableInputs();
-            onAlarmModeStarted?.Invoke();
+            _onAlarmModeStarted?.Invoke();
         }
 
         private void DisableInputs()
         {
-            foreach (var clockInput in clockInputs)
+            foreach (var clockInput in _clockInputs)
             {
                 clockInput.Switch(false);
             }
-            
-            foreach (var clockInputView in clockInputViews)
+
+            foreach (var clockInputView in _clockInputViews)
             {
                 clockInputView.Hide();
             }
         }
-        
+
         private void EnableInputs()
         {
-            foreach (var clockInput in clockInputs)
+            foreach (var clockInput in _clockInputs)
             {
                 clockInput.Switch(true);
                 clockInput.Sync(_timeProvider.GetTime());
             }
-            
-            foreach (var clockInputView in clockInputViews)
+
+            foreach (var clockInputView in _clockInputViews)
             {
                 clockInputView.Show();
             }

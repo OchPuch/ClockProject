@@ -1,12 +1,13 @@
 ﻿using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Clock.ClockModules.Input.Keyboard
 {
     public class KeyboardClockInput : ClockInput
     {
-        [SerializeField] private TMP_InputField inputField;
+        [FormerlySerializedAs("inputField")] [SerializeField] private TMP_InputField _inputField;
 
         private readonly int[] _dateTimeIntegers = new int[6];
         private int _currentInputIndex;
@@ -14,12 +15,12 @@ namespace Clock.ClockModules.Input.Keyboard
         
         private void Start()
         {
-            inputField.onValidateInput += OnValidateInput;
+            _inputField.onValidateInput += OnValidateInput;
         }
 
         protected override void OnSwitch(bool value)
         {
-            inputField.enabled = value;
+            _inputField.enabled = value;
         }
 
         private char OnValidateInput(string text, int charIndex, char addedChar)
@@ -39,12 +40,7 @@ namespace Clock.ClockModules.Input.Keyboard
 
         private void ChangeValue()
         {
-            _dateTimeIntegers[0] = Mathf.Clamp(_dateTimeIntegers[0], 0, 2);
-            _dateTimeIntegers[1] = Mathf.Clamp(_dateTimeIntegers[1], 0, 4);
-            _dateTimeIntegers[2] = Mathf.Clamp(_dateTimeIntegers[2], 0, 5);
-            _dateTimeIntegers[3] = Mathf.Clamp(_dateTimeIntegers[3], 0, 9);
-            _dateTimeIntegers[4] = Mathf.Clamp(_dateTimeIntegers[4], 0, 5);
-            _dateTimeIntegers[5] = Mathf.Clamp(_dateTimeIntegers[5], 0, 9);
+            ClampDateTimeIntegers();
             
             DateTime currentDateTime = TimeProvider.GetTime();
 
@@ -60,6 +56,16 @@ namespace Clock.ClockModules.Input.Keyboard
             if (LastTimeInput.TimeOfDay == newTimeInput.TimeOfDay) return;
             LastTimeInput = newTimeInput;
             OnValueChanged(LastTimeInput);
+        }
+
+        private void ClampDateTimeIntegers()
+        {
+            _dateTimeIntegers[0] = Mathf.Clamp(_dateTimeIntegers[0], 0, 2);
+            _dateTimeIntegers[1] = Mathf.Clamp(_dateTimeIntegers[1], 0, 4);
+            _dateTimeIntegers[2] = Mathf.Clamp(_dateTimeIntegers[2], 0, 5);
+            _dateTimeIntegers[3] = Mathf.Clamp(_dateTimeIntegers[3], 0, 9);
+            _dateTimeIntegers[4] = Mathf.Clamp(_dateTimeIntegers[4], 0, 5);
+            _dateTimeIntegers[5] = Mathf.Clamp(_dateTimeIntegers[5], 0, 9);
         }
 
         public override void Sync(DateTime time)
